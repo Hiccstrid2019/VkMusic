@@ -3,6 +3,8 @@
 
 ![](https://i.ibb.co/mbfszLf/brand2.png)
 
+<b>Написан с использованием WPF и открытой библиотеки для работы с API vk.com [VkNet](https://github.com/vknet/vk)</b>
+
 ![](https://i.ibb.co/gyBHZtr/2021-02-13-010922.png)
 
 ### Реализовано
