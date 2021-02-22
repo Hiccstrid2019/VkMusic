@@ -5,7 +5,12 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:VkMusic"
         mc:Ignorable="d" WindowStartupLocation="CenterScreen"
-        Title="VkMusic" Height="300" Width="450" Icon="/Resources/vk4.png" Background="#FF4D7FD6">
+        Title="VkMusic" 
+        Height="300" 
+        Width="470" 
+        Icon="/Resources/vk4.png" 
+        Background="#FF4D7FD6"
+        ResizeMode="CanMinimize">
     <Window.Resources>
         <RadialGradientBrush  x:Key="blueStyle">
             <GradientStop Color="CornflowerBlue" Offset="0"/>
@@ -105,6 +110,21 @@
             </Style.Triggers>
         </Style>
     </Window.Resources>
+    <Window.Triggers>
+        <EventTrigger RoutedEvent="MouseLeftButtonDown">
+            <EventTrigger.Actions>
+                <BeginStoryboard>
+                    <Storyboard TargetProperty="Width" TargetName="test">
+                        <DoubleAnimation From="70" To="150"
+                                         AutoReverse="True"
+                                         RepeatBehavior="0:0:10"
+                                         Duration="0:0:3"
+                                          />
+                    </Storyboard>
+                </BeginStoryboard>
+            </EventTrigger.Actions>
+        </EventTrigger>
+    </Window.Triggers>
     <Grid Background="{StaticResource blueStyle}">
         <Grid.RowDefinitions>
             <RowDefinition/>
@@ -119,39 +139,93 @@
             <ColumnDefinition Width="1*"/>
             <ColumnDefinition Width="1*"/>
         </Grid.ColumnDefinitions>
-        <ListView Grid.Row="0" Grid.ColumnSpan="6" Name="list" SelectionChanged="PlayingSong" Background="{StaticResource blueStyle}">
-            <ListView.View>
-                <GridView>
-                    <GridViewColumn Width="190" DisplayMemberBinding="{Binding Path=Title}">Title</GridViewColumn>
-                    <GridViewColumn Width="170" DisplayMemberBinding="{Binding Path=Artist}">Artist</GridViewColumn>
-                    <GridViewColumn Width="45" DisplayMemberBinding="{Binding Path=TimeString}">Time</GridViewColumn>
-                </GridView>
-            </ListView.View>
-            <ListView.ContextMenu>
-                <ContextMenu>
-                    <MenuItem Header="Download"/>
-                    <MenuItem Header="URL" Click="ShwoBoxWithUrl"/>
-                </ContextMenu>
-            </ListView.ContextMenu>
-        </ListView>
-        <Slider x:Name="TimeLine" Grid.Row="1" Grid.ColumnSpan="6"
-                Style="{StaticResource Horizontal_Slider}" ValueChanged="ChangePositionSong"/>
-        <Image x:Name="buttonPlay" Grid.Row="2" Grid.Column="1" Source="/Resources/stop.png"
+
+        <ScrollViewer Grid.Row="0" 
+                      Grid.ColumnSpan="6"
+                      ScrollChanged="AddNewPlaylists">
+            <WrapPanel x:Name="Space">
+                <!--
+                <StackPanel Height="180"
+                            HorizontalAlignment="Left"
+                            VerticalAlignment="Top">
+                    <Grid>
+                        <Image Source="/Resources/default_playlist.jpeg"
+                            Width="135"
+                            Height="135"
+                            Margin="5 5 5 5">
+                        </Image>
+                        <StackPanel Orientation="Horizontal"
+                                    HorizontalAlignment="Center"
+                                    VerticalAlignment="Center"
+                                    x:Name="test">
+                            <Ellipse Width="15" Height="15" Margin="7" Fill="BlueViolet"/>
+                            <Ellipse Width="15" Height="15" Margin="7" Fill="BlueViolet"/>
+                            <Ellipse Width="15" Height="15" Margin="7" Fill="BlueViolet"/>
+                        </StackPanel>
+                    </Grid>
+                    <TextBlock HorizontalAlignment="Center"
+                               Text="Отдельные треки"
+                               FontWeight="Bold"/>
+                    <TextBlock HorizontalAlignment="Center"
+                               Text="Музыка ВКонтакте"
+                               FontWeight="Light"
+                               Width="120"
+                               Foreground="DarkSlateGray"/>
+                </StackPanel>
+                -->
+            </WrapPanel>
+        </ScrollViewer>
+        
+        <Slider x:Name="TimeLine" 
+                Grid.Row="1" 
+                Grid.ColumnSpan="6"
+                Style="{StaticResource Horizontal_Slider}" 
+                ValueChanged="ChangePositionSong"/>
+        
+        <Image x:Name="buttonPlay" 
+               Grid.Row="2" 
+               Grid.Column="1" 
+               Source="/Resources/stop.png"
                MouseLeftButtonDown="PlayPause"/>
-        <Image Grid.Row="2" Grid.Column="0" Source="/Resources/previous.png"
+        
+        <Image Grid.Row="2" 
+               Grid.Column="0" 
+               Source="/Resources/previous.png"
                MouseLeftButtonDown="BTClickPrev"/>
-        <Image Grid.Row="2" Grid.Column="2" Source="/Resources/next.png"
+        
+        <Image Grid.Row="2" 
+               Grid.Column="2" 
+               Source="/Resources/next.png"
                MouseLeftButtonDown="BTClickNext"/>
+        
         <StackPanel Grid.Row="2" Grid.Column="3">
-            <TextBlock x:Name="SongTitle" Padding="10 0 0 0" 
-                       HorizontalAlignment="Left" FontWeight="Bold" Text="Title"/>
-            <TextBlock x:Name="SongArtist" Padding="10 0 0 0" FontSize="11"
-                       HorizontalAlignment="Left" FontWeight="ExtraLight" Text="Artist"/>
+            
+            <TextBlock x:Name="SongTitle" 
+                       Padding="10 0 0 0" 
+                       HorizontalAlignment="Left" 
+                       FontWeight="Bold" Text="Title"/>
+            
+            <TextBlock x:Name="SongArtist" 
+                       Padding="10 0 0 0" 
+                       FontSize="11"
+                       HorizontalAlignment="Left" 
+                       FontWeight="ExtraLight" Text="Artist"/>
         </StackPanel>
-        <TextBlock x:Name="SongTime" Grid.Row="2" Grid.Column="4" Text="00:00" 
-                   VerticalAlignment="Center" HorizontalAlignment="Center"
+        
+        <TextBlock x:Name="SongTime" 
+                   Grid.Row="2" 
+                   Grid.Column="4" Text="00:00" 
+                   VerticalAlignment="Center" 
+                   HorizontalAlignment="Center"
                    FontSize="12" FontWeight="Light"/>
-        <Slider x:Name="VolumeSlider" Grid.Row="2" Grid.Column="5" Value="0.3" Style="{StaticResource Horizontal_Slider}"
-                Minimum="0" Maximum="1" ValueChanged="ChangeVolume" VerticalAlignment="Center"/>
+        
+        <Slider x:Name="VolumeSlider"
+                Grid.Row="2" 
+                Grid.Column="5" 
+                Value="0.3" 
+                Style="{StaticResource Horizontal_Slider}"
+                Minimum="0" Maximum="1" 
+                ValueChanged="ChangeVolume" 
+                VerticalAlignment="Center"/>
     </Grid>
 </Window>

@@ -5,7 +5,7 @@
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
     <ProjectGuid>{7BEE781A-6735-4E00-AC0D-0523A3751A3A}</ProjectGuid>
-    <OutputType>WinExe</OutputType>
+    <OutputType>Exe</OutputType>
     <RootNamespace>VkMusic</RootNamespace>
     <AssemblyName>VkMusic</AssemblyName>
     <TargetFrameworkVersion>v4.7.2</TargetFrameworkVersion>
@@ -36,6 +36,9 @@
   </PropertyGroup>
   <PropertyGroup>
     <ApplicationIcon>vk4.ico</ApplicationIcon>
+  </PropertyGroup>
+  <PropertyGroup>
+    <StartupObject />
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="HtmlAgilityPack, Version=1.11.24.0, Culture=neutral, PublicKeyToken=bd319b19eaf3b43a, processorArchitecture=MSIL">
@@ -89,6 +92,7 @@
     <Compile Include="LoginWindow.xaml.cs">
       <DependentUpon>LoginWindow.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Playlist.cs" />
     <Compile Include="Song.cs" />
     <Page Include="LoginWindow.xaml">
       <SubType>Designer</SubType>
@@ -160,6 +164,15 @@
   </ItemGroup>
   <ItemGroup>
     <Resource Include="vk4.ico" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Resources\default_playlist.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Resources\default_playlist.jpeg" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Resources\default.png" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

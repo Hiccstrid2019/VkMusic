@@ -35,12 +35,6 @@ namespace VkMusic
         {
             InitializeComponent();
 
-            List<Song> VKSongs = new List<Song>();
-            var services = new ServiceCollection();
-            services.AddAudioBypass();
-
-            var api = new VkApi(services);
-
             try
             {
                 if (Properties.Settings.Default.VkToken != "")
@@ -69,40 +63,95 @@ namespace VkMusic
             {
                 throw new Exception(e.Message);
             }
-            
-            var audios = api.Audio.Get(new AudioGetParams { Count = 6000 });
-            foreach (var audio in audios)
+            catch (Exception e)
             {
-                TimeSpan ts = TimeSpan.FromSeconds(audio.Duration);
-                VKSongs.Add(new Song
-                {
-                    Artist = audio.Artist,
-                    Title = audio.Title,
-                    Time = audio.Duration,
-                    TimeString = ts.ToString(@"mm\:ss"),
-                    Url = extractMP3fromUrl(audio.Url.ToString()),
-                    OriginalUrl = audio.Url.ToString()
-                });
+                MessageBox.Show(e.Message);
             }
 
-            list.ItemsSource = VKSongs;
+            
+            var audios = api.Audio.Get(new AudioGetParams { Count = 6000 });
+            if (audios.Count != 0)
+            {
+                playlists.Add(new Playlist(audios, "Отдельные треки", 0, "Resources/default.png"));
+                ExistDefaultPlaylist = true;
+            }
+            
 
-
-
+            int startCountPlaylist = (ExistDefaultPlaylist) ? 8 : 9;
+            DownloadPlaylist(startCountPlaylist);
+            
+            
         }
+        private VkApi api = new VkApi(new ServiceCollection().AddAudioBypass());
         private readonly DispatcherTimer timer = new DispatcherTimer();
         private readonly MediaPlayer mediaPlayer = new MediaPlayer();
-        bool IsPlaying;
-        private void PlayingSong(object sender, RoutedEventArgs e)
+        
+
+        List<Playlist> playlists = new List<Playlist>();
+        List<Song> VKSongs = new List<Song>();
+        private int Offset = 0;
+        private bool ExistDefaultPlaylist = false;
+
+
+        private bool IsPlaying;
+        Playlist currentPlaylist;
+
+        ListView listSongs = new ListView();
+
+        /*
+        private void ShowSongsBoard(object sender, RoutedEventArgs e)
         {
-            Song song = (Song)list.SelectedItem;
-            SongTitle.Text = song.Title;
-            SongArtist.Text = song.Artist;
-            TimeSpan ts = TimeSpan.FromSeconds(song.Time);
-            SongTime.Text = ts.ToString(@"mm\:ss");
+            listSongs.ItemsSource = VKSongs;
+            GridView songGrid = new GridView();
+
+            GridViewColumn title = new GridViewColumn
+            {
+                DisplayMemberBinding = new Binding("Title"),
+                Header = "Title",
+                Width = 190
+            };
+            songGrid.Columns.Add(title);
+
+            GridViewColumn artist = new GridViewColumn
+            {
+                DisplayMemberBinding = new Binding("Artist"),
+                Header = "Artist",
+                Width = 160
+            };
+            songGrid.Columns.Add(artist);
+
+            GridViewColumn time = new GridViewColumn
+            {
+                DisplayMemberBinding = new Binding("TimeString"),
+                Header = "Time",
+                Width = 45
+            };
+            songGrid.Columns.Add(time);
+
+            listSongs.View = songGrid;
+            listSongs.HorizontalAlignment = HorizontalAlignment.Stretch;
+            listSongs.SelectionChanged += PlayingSong;
+            listSongs.Background = (RadialGradientBrush)this.TryFindResource("blueStyle");
+            Space.Children.Add(listSongs);
+        }
+        */
+        private void AddNewPlaylists(object sender, ScrollChangedEventArgs e)
+        {
+            ScrollViewer sb = (ScrollViewer) sender;
+            if (sb.VerticalOffset == sb.ScrollableHeight)
+            {
+                DownloadPlaylist(9);
+            }
+        }
+        private void PlaySong()
+        {
+            Song currentSong = currentPlaylist[currentPlaylist.CurrentIndexSong];
+            SongTitle.Text = currentSong.Title;
+            SongArtist.Text = currentSong.Artist;
+            SongTime.Text = TimeSpan.FromSeconds(currentSong.Time).ToString(@"mm\:ss");
             TimeLine.Minimum = 0;
-            TimeLine.Maximum = song.Time;
-            mediaPlayer.Open(new Uri(song.Url));
+            TimeLine.Maximum = currentSong.Time;
+            mediaPlayer.Open(new Uri(currentSong.Url));
             timer.Interval = new TimeSpan(0, 0, 1);
             timer.Tick += timer_Tick;
             mediaPlayer.MediaEnded += SongEnding;
@@ -110,6 +159,14 @@ namespace VkMusic
             IsPlaying = true;
             buttonPlay.Source = new BitmapImage(new Uri("Resources/pause.png", UriKind.Relative));
             mediaPlayer.Play();
+        }
+        private void playingPlaylist(object sender, RoutedEventArgs e)
+        {
+            Console.WriteLine(Space.Children.IndexOf((StackPanel)sender));
+            Console.WriteLine(playlists[Space.Children.IndexOf((StackPanel)sender)].CountSongs);
+            currentPlaylist = playlists[Space.Children.IndexOf((StackPanel)sender)];
+            currentPlaylist.CurrentIndexSong = 0;
+            PlaySong();
         }
 
         private void timer_Tick(object sender, EventArgs e)
@@ -134,10 +191,8 @@ namespace VkMusic
         }
         private void SongEnding(object sender, EventArgs e)
         {
-            if (list.SelectedIndex < list.Items.Count - 1)
-                list.SelectedIndex += 1;
-            else
-                list.SelectedIndex = 0;
+            currentPlaylist.CurrentIndexSong += 1;
+            PlaySong();
         }
 
         private void PlaySong(object sender, RoutedEventArgs e)
@@ -150,17 +205,13 @@ namespace VkMusic
         }
         private void BTClickPrev(object sender, MouseEventArgs e)
         {
-            if (list.SelectedIndex > 0)
-                list.SelectedIndex -= 1;
-            else
-                list.SelectedIndex = list.Items.Count - 1;
+            currentPlaylist.CurrentIndexSong -= 1;
+            PlaySong();
         }
         private void BTClickNext(object sender, MouseEventArgs e)
         {
-            if (list.SelectedIndex < list.Items.Count - 1)
-                list.SelectedIndex += 1;
-            else
-                list.SelectedIndex = 0;
+            currentPlaylist.CurrentIndexSong += 1;
+            PlaySong();
         }
         private void ChangeVolume(object sender, RoutedPropertyChangedEventArgs<double> e)
         {
@@ -170,25 +221,70 @@ namespace VkMusic
         {
             mediaPlayer.Position = TimeSpan.FromSeconds(e.NewValue);
         }
-        private string extractMP3fromUrl(string audioUrl)
-        {
-            audioUrl = audioUrl.Split('?')[0];
-            if (audioUrl.Contains(".mp3"))
-                return audioUrl.Replace("https", "http");
-            string[] chunksUrl = audioUrl.Split('/');
-            if (audioUrl.Contains("audios"))
-            {
-                audioUrl = $"{chunksUrl[0]}//{chunksUrl[2]}/{chunksUrl[3]}/{chunksUrl[4]}/{chunksUrl[6]}/{chunksUrl[7]}.mp3".Replace("https", "http");
-                return audioUrl;
-            }
-            audioUrl = $"{chunksUrl[0]}//{chunksUrl[2]}/{chunksUrl[3]}/{chunksUrl[5]}.mp3".Replace("https", "http");
-            return audioUrl;
-        }
+        
         private void ShwoBoxWithUrl(object sender, RoutedEventArgs e)
         {
-            Song song = (Song)list.SelectedItem;
+            Song song = (Song)listSongs.SelectedItem;
             Clipboard.SetText(song.OriginalUrl);
             MessageBox.Show(song.Url);
+        }
+        private void DownloadPlaylist(int CountPlaylist)
+        {
+
+            Console.WriteLine($"Offset: {Offset} Count: {CountPlaylist}");
+            var audioPlaylists = api.Audio.GetPlaylists(Properties.Settings.Default.UserId,
+                                                        Convert.ToUInt32(CountPlaylist),
+                                                        Convert.ToUInt32(Offset));
+            foreach (var playlist in audioPlaylists)
+            {
+                playlists.Add(new Playlist(api.Audio.Get(new AudioGetParams { PlaylistId = playlist.Id.Value }),
+                                           playlist.Title, playlist.Id.Value, 
+                                           playlist.Photo.Photo135));
+            }
+
+            for (int i = (Offset > 0 && ExistDefaultPlaylist) ? Offset + 1: Offset; i < playlists.Count; i++)
+            {
+                
+                Playlist plst = playlists[i];
+                Console.WriteLine($"{i}) {plst.Title} : {plst.CountSongs}");
+                StackPanel currentPlaylist = new StackPanel()
+                {
+                    Height = 180
+                };
+
+                BitmapImage bIcon;
+                try
+                {
+                    bIcon = new BitmapImage(new Uri(plst.PhotoUrl));
+                }
+                catch (UriFormatException)
+                {
+                    bIcon = new BitmapImage(new Uri(plst.PhotoUrl, UriKind.Relative));
+                }
+                System.Windows.Controls.Image iconPlaylist = new System.Windows.Controls.Image()
+                {
+                    Width = 135,
+                    Height = 135,
+                    Margin = new Thickness(5),
+                    Source = bIcon
+                };
+                currentPlaylist.Children.Add(iconPlaylist);
+
+                TextBlock titlePlaylist = new TextBlock()
+                {
+                    Width = 120,
+                    TextTrimming = TextTrimming.CharacterEllipsis,
+                    Text = plst.Title,
+                    FontWeight = FontWeights.Bold,
+                    HorizontalAlignment = HorizontalAlignment.Center
+                };
+                currentPlaylist.Children.Add(titlePlaylist);
+
+                currentPlaylist.MouseLeftButtonDown += playingPlaylist;
+
+                Space.Children.Add(currentPlaylist);
+            }
+            Offset += CountPlaylist;
         }
     }
 
