@@ -73,6 +73,16 @@ namespace VkMusic.Properties {
         /// <summary>
         ///   Поиск локализованного ресурса типа System.Drawing.Bitmap.
         /// </summary>
+        internal static System.Drawing.Bitmap brand {
+            get {
+                object obj = ResourceManager.GetObject("brand", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Поиск локализованного ресурса типа System.Drawing.Bitmap.
+        /// </summary>
         internal static System.Drawing.Bitmap default_playlist {
             get {
                 object obj = ResourceManager.GetObject("default_playlist", resourceCulture);

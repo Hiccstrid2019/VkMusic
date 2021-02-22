@@ -88,57 +88,15 @@ namespace VkMusic
         
 
         List<Playlist> playlists = new List<Playlist>();
-        List<Song> VKSongs = new List<Song>();
         private int Offset = 0;
         private bool ExistDefaultPlaylist = false;
 
-
         private bool IsPlaying;
         Playlist currentPlaylist;
-
-        ListView listSongs = new ListView();
-
-        /*
-        private void ShowSongsBoard(object sender, RoutedEventArgs e)
-        {
-            listSongs.ItemsSource = VKSongs;
-            GridView songGrid = new GridView();
-
-            GridViewColumn title = new GridViewColumn
-            {
-                DisplayMemberBinding = new Binding("Title"),
-                Header = "Title",
-                Width = 190
-            };
-            songGrid.Columns.Add(title);
-
-            GridViewColumn artist = new GridViewColumn
-            {
-                DisplayMemberBinding = new Binding("Artist"),
-                Header = "Artist",
-                Width = 160
-            };
-            songGrid.Columns.Add(artist);
-
-            GridViewColumn time = new GridViewColumn
-            {
-                DisplayMemberBinding = new Binding("TimeString"),
-                Header = "Time",
-                Width = 45
-            };
-            songGrid.Columns.Add(time);
-
-            listSongs.View = songGrid;
-            listSongs.HorizontalAlignment = HorizontalAlignment.Stretch;
-            listSongs.SelectionChanged += PlayingSong;
-            listSongs.Background = (RadialGradientBrush)this.TryFindResource("blueStyle");
-            Space.Children.Add(listSongs);
-        }
-        */
         private void AddNewPlaylists(object sender, ScrollChangedEventArgs e)
         {
-            ScrollViewer sb = (ScrollViewer) sender;
-            if (sb.VerticalOffset == sb.ScrollableHeight)
+            ScrollViewer scrollViewer = (ScrollViewer) sender;
+            if (scrollViewer.VerticalOffset == scrollViewer.ScrollableHeight)
             {
                 DownloadPlaylist(9);
             }
@@ -162,8 +120,6 @@ namespace VkMusic
         }
         private void playingPlaylist(object sender, RoutedEventArgs e)
         {
-            Console.WriteLine(Space.Children.IndexOf((StackPanel)sender));
-            Console.WriteLine(playlists[Space.Children.IndexOf((StackPanel)sender)].CountSongs);
             currentPlaylist = playlists[Space.Children.IndexOf((StackPanel)sender)];
             currentPlaylist.CurrentIndexSong = 0;
             PlaySong();
@@ -222,16 +178,8 @@ namespace VkMusic
             mediaPlayer.Position = TimeSpan.FromSeconds(e.NewValue);
         }
         
-        private void ShwoBoxWithUrl(object sender, RoutedEventArgs e)
-        {
-            Song song = (Song)listSongs.SelectedItem;
-            Clipboard.SetText(song.OriginalUrl);
-            MessageBox.Show(song.Url);
-        }
         private void DownloadPlaylist(int CountPlaylist)
         {
-
-            Console.WriteLine($"Offset: {Offset} Count: {CountPlaylist}");
             var audioPlaylists = api.Audio.GetPlaylists(Properties.Settings.Default.UserId,
                                                         Convert.ToUInt32(CountPlaylist),
                                                         Convert.ToUInt32(Offset));
@@ -246,7 +194,6 @@ namespace VkMusic
             {
                 
                 Playlist plst = playlists[i];
-                Console.WriteLine($"{i}) {plst.Title} : {plst.CountSongs}");
                 StackPanel currentPlaylist = new StackPanel()
                 {
                     Height = 180
