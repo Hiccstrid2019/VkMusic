@@ -110,21 +110,6 @@
             </Style.Triggers>
         </Style>
     </Window.Resources>
-    <Window.Triggers>
-        <EventTrigger RoutedEvent="MouseLeftButtonDown">
-            <EventTrigger.Actions>
-                <BeginStoryboard>
-                    <Storyboard TargetProperty="Width" TargetName="test">
-                        <DoubleAnimation From="70" To="150"
-                                         AutoReverse="True"
-                                         RepeatBehavior="0:0:10"
-                                         Duration="0:0:3"
-                                          />
-                    </Storyboard>
-                </BeginStoryboard>
-            </EventTrigger.Actions>
-        </EventTrigger>
-    </Window.Triggers>
     <Grid Background="{StaticResource blueStyle}">
         <Grid.RowDefinitions>
             <RowDefinition/>
@@ -144,35 +129,7 @@
                       Grid.ColumnSpan="6"
                       ScrollChanged="AddNewPlaylists">
             <WrapPanel x:Name="Space">
-                <!--
-                <StackPanel Height="180"
-                            HorizontalAlignment="Left"
-                            VerticalAlignment="Top">
-                    <Grid>
-                        <Image Source="/Resources/default_playlist.jpeg"
-                            Width="135"
-                            Height="135"
-                            Margin="5 5 5 5">
-                        </Image>
-                        <StackPanel Orientation="Horizontal"
-                                    HorizontalAlignment="Center"
-                                    VerticalAlignment="Center"
-                                    x:Name="test">
-                            <Ellipse Width="15" Height="15" Margin="7" Fill="BlueViolet"/>
-                            <Ellipse Width="15" Height="15" Margin="7" Fill="BlueViolet"/>
-                            <Ellipse Width="15" Height="15" Margin="7" Fill="BlueViolet"/>
-                        </StackPanel>
-                    </Grid>
-                    <TextBlock HorizontalAlignment="Center"
-                               Text="Отдельные треки"
-                               FontWeight="Bold"/>
-                    <TextBlock HorizontalAlignment="Center"
-                               Text="Музыка ВКонтакте"
-                               FontWeight="Light"
-                               Width="120"
-                               Foreground="DarkSlateGray"/>
-                </StackPanel>
-                -->
+
             </WrapPanel>
         </ScrollViewer>
         
