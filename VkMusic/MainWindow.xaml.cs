@@ -35,39 +35,25 @@ namespace VkMusic
         {
             InitializeComponent();
 
-            try
+            if (Properties.Settings.Default.VkToken != "")
+                api.Authorize(new ApiAuthParams { AccessToken = Properties.Settings.Default.VkToken });
+            else
             {
-                if (Properties.Settings.Default.VkToken != "")
-                    api.Authorize(new ApiAuthParams { AccessToken = Properties.Settings.Default.VkToken });
-                else
+                LoginWindow loginWindow = new LoginWindow();
+                if (loginWindow.ShowDialog() == true)
                 {
-                    LoginWindow loginWindow = new LoginWindow();
-                    if (loginWindow.ShowDialog() == true)
+
+                    api.Authorize(new ApiAuthParams
                     {
-                        api.Authorize(new ApiAuthParams
-                        {
-                            Login = loginWindow.Login,
-                            Password = loginWindow.Password
-                        });
-                        Properties.Settings.Default.VkToken = api.Token;
-                        Properties.Settings.Default.UserId = api.UserId.Value;
-                        Properties.Settings.Default.Save();
-                    }
+                        Login = loginWindow.Login,
+                        Password = loginWindow.Password,
+                    });
+                    Properties.Settings.Default.VkToken = api.Token;
+                    Properties.Settings.Default.UserId = api.UserId.Value;
+                    Properties.Settings.Default.Save();
                 }
             }
-            catch (VkNet.AudioBypassService.Exceptions.VkAuthException e)
-            {
-                MessageBox.Show(e.Message);
-            }
-            catch (VkNet.Exception.CaptchaNeededException e)
-            {
-                throw new Exception(e.Message);
-            }
-            catch (Exception e)
-            {
-                MessageBox.Show(e.Message);
-            }
-
+            
             
             var audios = api.Audio.Get(new AudioGetParams { Count = 6000 });
             if (audios.Count != 0)
@@ -185,8 +171,13 @@ namespace VkMusic
                                                         Convert.ToUInt32(Offset));
             foreach (var playlist in audioPlaylists)
             {
-                playlists.Add(new Playlist(api.Audio.Get(new AudioGetParams { PlaylistId = playlist.Id.Value }),
-                                           playlist.Title, playlist.Id.Value, 
+                if (playlist.Photo == null)
+                    playlists.Add(new Playlist(api.Audio.Get(new AudioGetParams { PlaylistId = playlist.Id.Value }),
+                                           playlist.Title, playlist.Id.Value,
+                                           "Resources/default.png"));
+                else
+                    playlists.Add(new Playlist(api.Audio.Get(new AudioGetParams { PlaylistId = playlist.Id.Value }),
+                                           playlist.Title, playlist.Id.Value,
                                            playlist.Photo.Photo135));
             }
 
