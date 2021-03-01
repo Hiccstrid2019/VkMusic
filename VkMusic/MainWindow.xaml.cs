@@ -34,8 +34,7 @@ namespace VkMusic
         public MainWindow()
         {
             InitializeComponent();
-
-            if (Properties.Settings.Default.VkToken != "")
+            if (Properties.Settings.Default.VkToken == "")
                 api.Authorize(new ApiAuthParams { AccessToken = Properties.Settings.Default.VkToken });
             else
             {
@@ -58,7 +57,7 @@ namespace VkMusic
             var audios = api.Audio.Get(new AudioGetParams { Count = 6000 });
             if (audios.Count != 0)
             {
-                playlists.Add(new Playlist(audios, "Отдельные треки", 0, "Resources/default.png"));
+                playlists.Add(new Playlist(audios, "Отдельные треки", 0, "Resources/music-album.png"));
                 ExistDefaultPlaylist = true;
             }
             
@@ -174,7 +173,7 @@ namespace VkMusic
                 if (playlist.Photo == null)
                     playlists.Add(new Playlist(api.Audio.Get(new AudioGetParams { PlaylistId = playlist.Id.Value }),
                                            playlist.Title, playlist.Id.Value,
-                                           "Resources/default.png"));
+                                           "Resources/music-album.png"));
                 else
                     playlists.Add(new Playlist(api.Audio.Get(new AudioGetParams { PlaylistId = playlist.Id.Value }),
                                            playlist.Title, playlist.Id.Value,
