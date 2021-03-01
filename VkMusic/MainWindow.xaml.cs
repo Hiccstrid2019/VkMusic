@@ -34,7 +34,7 @@ namespace VkMusic
         public MainWindow()
         {
             InitializeComponent();
-            if (Properties.Settings.Default.VkToken == "")
+            if (Properties.Settings.Default.VkToken != "")
                 api.Authorize(new ApiAuthParams { AccessToken = Properties.Settings.Default.VkToken });
             else
             {
